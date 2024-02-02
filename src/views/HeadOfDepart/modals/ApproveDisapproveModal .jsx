@@ -2,16 +2,50 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 
 const ApproveDisapproveModal = ({ isOpen, closeModal }) => {
-  // Sample requisitions data (replace with actual data)
-  const requisitions = [
+  const [requisitions, setRequisitions] = useState([
     { id: 1, name: 'John Doe', status: 'Pending' },
-    { id: 2, name: 'Jane Smith', status: 'Approved' },
+    { id: 2, name: 'Jane Smith', status: 'Pending' },
     // Add more requisitions as needed
-  ];
+  ]);
 
-  const handleAction = (action, requisitionId) => {
-    // Handle the action (approve, disapprove, view details)
-    console.log(`Action: ${action} for requisition ID: ${requisitionId}`);
+  const handleAction = async (action, requisitionId) => {
+    try {
+      // Update the status and move to the approved table on approval
+      if (action === 'approve') {
+        const response = await fetch(`http://localhost:3001/api/approve-requisition/${requisitionId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          // Update the local state to reflect the change
+          setRequisitions((prevReqs) =>
+            prevReqs.map((req) =>
+              req.id === requisitionId ? { ...req, status: 'Approved' } : req
+            )
+          );
+        } else {
+          console.error('Error approving requisition:', response.statusText);
+        }
+      }
+
+      // Handle disapproval
+      if (action === 'disapprove') {
+        // Similar logic to the approval, update status or move to a different table
+        // ...
+      }
+
+      // Handle view details
+      if (action === 'viewDetails') {
+        // Fetch requisition details or show a modal with more information
+        // ...
+      }
+
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
   };
 
   return (
@@ -40,7 +74,7 @@ const ApproveDisapproveModal = ({ isOpen, closeModal }) => {
             <table className="min-w-full bg-white border border-gray-300">
               <thead>
                 <tr>
-                  <th className="py-2 px-4 border-b">ID</th>
+                  <th className="py-2 px-4 border-b">RID</th>
                   <th className="py-2 px-4 border-b">Name</th>
                   <th className="py-2 px-4 border-b">Status</th>
                   <th className="py-2 px-4 border-b">Actions</th>
@@ -54,8 +88,9 @@ const ApproveDisapproveModal = ({ isOpen, closeModal }) => {
                     <td className="py-2 px-4 border-b">{req.status}</td>
                     <td className="py-2 px-4 border-b">
                       <button
-                        className="bg-green-500 text-white px-2 py-1 rounded-full mr-2"
+                        className={`bg-green-500 text-white px-2 py-1 rounded-full mr-2 ${req.status === 'Approved' ? 'opacity-50 cursor-not-allowed' : ''}`}
                         onClick={() => handleAction('approve', req.id)}
+                        disabled={req.status === 'Approved'}
                       >
                         Approve
                       </button>

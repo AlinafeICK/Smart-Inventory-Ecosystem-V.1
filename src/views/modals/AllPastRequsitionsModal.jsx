@@ -45,10 +45,15 @@ const AllPastRequsitionsModal = ({ isOpen, closeModal }) => {
         </button>
 
         <ul>
+          {/* Display data from database */}
           {pastRequisitions.map((req, index) => (
             <li key={index} className="mb-4 border-b-2 scroll-m-1 border-gray-300">
+
+              <strong>Item:</strong> {splitDateTime(req.date).item}<br />
+              <strong>Quantity:</strong> {req.quantity}<br />
+              <strong>Description:</strong> {req.description}<br />
               <strong>Date:</strong> {splitDateTime(req.date).date}<br />
-              <strong>Email:</strong> {req.description}<br />
+              
               {/* Add other properties as needed */}
             </li>
           ))}
